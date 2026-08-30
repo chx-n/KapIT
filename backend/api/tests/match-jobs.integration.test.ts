@@ -2,10 +2,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
-const { ensureBaseTestEnv, getTestEnvValue } = require('./testEnv.ts');
+const { ensureBaseTestEnv } = require('./testEnv.ts');
 
 ensureBaseTestEnv();
-getTestEnvValue('FASTAPI_URL', 'http://127.0.0.1:8000');
 
 const { createApp } = require('../app');
 
@@ -18,44 +17,22 @@ const getAccessToken = () =>
       role: 'employee',
     },
     process.env.JWT_SECRET,
-    { expiresIn: '20m' }
+    { expiresIn: '20m' },
   );
 
-test('POST /api/match-jobs returns normalized matches', async () => {
-  const originalFetch = global.fetch;
-  global.fetch = (async () => ({
-    ok: true,
-    status: 200,
-    json: async () => [
-      {
-        id: 12,
-        title: 'Frontend Developer',
-        match: 78,
-        matched_skills: ['react', 'javascript'],
-        missing_skills: ['node'],
-      },
-    ],
-  })) as any;
+test('POST /api/match-jobs returns normalized matches from local engine', async () => {
+  const app = createApp();
+  const response = await request(app)
+    .post('/api/match-jobs')
+    .set('Authorization', `Bearer ${getAccessToken()}`)
+    .send({
+      skills: ['React', 'JavaScript'],
+      experience: 'junior',
+    });
 
-  try {
-    const app = createApp();
-    const response = await request(app)
-      .post('/api/match-jobs')
-      .set('Authorization', `Bearer ${getAccessToken()}`)
-      .send({
-        skills: ['React', 'JavaScript'],
-        experience: 'junior',
-      });
-
-    assert.equal(response.status, 200);
-    assert.equal(response.body.success, true);
-    assert.equal(Array.isArray(response.body.matches), true);
-    assert.equal(response.body.matches[0].title, 'Frontend Developer');
-    assert.equal(response.body.matches[0].match, 78);
-    assert.deepEqual(response.body.matches[0].matched_skills, ['react', 'javascript']);
-  } finally {
-    global.fetch = originalFetch;
-  }
+  assert.equal(response.status, 200);
+  assert.equal(response.body.success, true);
+  assert.equal(Array.isArray(response.body.matches), true);
 });
 
 test('POST /api/match-jobs rejects invalid request body', async () => {
@@ -71,82 +48,4 @@ test('POST /api/match-jobs rejects invalid request body', async () => {
   assert.equal(response.status, 400);
   assert.equal(response.body.success, false);
   assert.equal(response.body.error, 'validation error');
-});
-
-test('POST /api/match-jobs handles FastAPI non-200 errors', async () => {
-  const originalFetch = global.fetch;
-  global.fetch = (async () => ({
-    ok: false,
-    status: 502,
-    json: async () => ({ message: 'upstream unavailable' }),
-  })) as any;
-
-  try {
-    const app = createApp();
-    const response = await request(app)
-      .post('/api/match-jobs')
-      .set('Authorization', `Bearer ${getAccessToken()}`)
-      .send({
-        skills: ['react'],
-        experience: 'junior',
-      });
-
-    assert.equal(response.status, 502);
-    assert.equal(response.body.success, false);
-    assert.equal(response.body.error, 'Unable to match jobs right now.');
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('POST /api/match-jobs handles invalid FastAPI response shapes', async () => {
-  const originalFetch = global.fetch;
-  global.fetch = (async () => ({
-    ok: true,
-    status: 200,
-    json: async () => ({ matches: [] }),
-  })) as any;
-
-  try {
-    const app = createApp();
-    const response = await request(app)
-      .post('/api/match-jobs')
-      .set('Authorization', `Bearer ${getAccessToken()}`)
-      .send({
-        skills: ['react'],
-        experience: 'junior',
-      });
-
-    assert.equal(response.status, 502);
-    assert.equal(response.body.success, false);
-    assert.equal(response.body.error, 'Unable to match jobs right now.');
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('POST /api/match-jobs maps timeout to 504', async () => {
-  const originalFetch = global.fetch;
-  global.fetch = (async () => {
-    const timeoutError = new Error('aborted');
-    timeoutError.name = 'AbortError';
-    throw timeoutError;
-  }) as any;
-
-  try {
-    const app = createApp();
-    const response = await request(app)
-      .post('/api/match-jobs')
-      .set('Authorization', `Bearer ${getAccessToken()}`)
-      .send({
-        skills: ['react'],
-        experience: 'junior',
-      });
-
-    assert.equal(response.status, 504);
-    assert.equal(response.body.success, false);
-    assert.equal(response.body.error, 'Unable to match jobs right now.');
-  } finally {
-    global.fetch = originalFetch;
-  }
 });

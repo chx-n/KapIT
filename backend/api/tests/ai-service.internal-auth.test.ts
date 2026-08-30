@@ -1,242 +1,93 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
-const { ensureBaseTestEnv, getTestEnvValue } = require('./testEnv.ts');
+const { ensureBaseTestEnv } = require('./testEnv.ts');
 
-const aiServiceModulePath = require.resolve('../services/aiService');
+ensureBaseTestEnv();
 
-const loadAiService = () => {
-  delete require.cache[aiServiceModulePath];
-  return require('../services/aiService');
-};
+const aiService = require('../services/aiService');
+const pool = require('../config/database');
+const { createApp } = require('../app');
 
-const withEnv = async (overrides, run) => {
-  const keys = [
-    'FASTAPI_URL',
-    'FASTAPI_INTERNAL_SERVICE_TOKEN',
-    'INTERNAL_SERVICE_TOKEN',
-    'CHATBOT_PROVIDER',
-    'CHATBOT_MODE',
+test('aiService: getChatbotReply returns response in-process', async () => {
+  const response = await aiService.getChatbotReply({ message: 'hello' });
+  assert.equal(response.intent, 'greeting');
+  assert.ok(response.confidence >= 0.75);
+  assert.ok(response.reply.length > 0);
+});
+
+test('aiService: matchJobsForCandidate computes match scores', async () => {
+  const candidate = {
+    skills: ['React', 'Node.js'],
+    experience_years: 3,
+  };
+  const jobs = [
+    { id: 1, title: 'React Engineer', skills: ['React'] },
   ];
-  const snapshot = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
 
-  for (const [key, value] of Object.entries(overrides)) {
-    if (value == null) {
-      delete process.env[key];
-    } else {
-      process.env[key] = String(value);
-    }
-  }
+  const result = await aiService.matchJobsForCandidate({ candidate, jobs });
+  assert.equal(result.success, true);
+  assert.equal(result.matches.length, 1);
+  assert.ok(result.matches[0].match_percentage > 50);
+});
 
-  try {
-    return await run();
-  } finally {
-    for (const [key, value] of Object.entries(snapshot)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
-    }
-    delete require.cache[aiServiceModulePath];
-  }
-};
+test('aiService: rankCandidatesForJob ranks candidate profiles', async () => {
+  const job = {
+    id: 1,
+    title: 'TypeScript Developer',
+    skills: ['TypeScript', 'Node.js'],
+  };
+  const candidates = [
+    { id: 'c1', name: 'Alice', skills: ['TypeScript', 'Node.js'] },
+    { id: 'c2', name: 'Bob', skills: ['Java'] },
+  ];
 
-test('POST /api/public/chatbot/message uses local mode when CHATBOT_PROVIDER=local', async () => {
-  ensureBaseTestEnv();
-  const originalFetch = global.fetch;
-  let fetchCalls: number = 0;
-  global.fetch = (async () => {
-    fetchCalls += 1;
+  const result = await aiService.rankCandidatesForJob({ job, candidates });
+  assert.equal(result.success, true);
+  assert.equal(result.rankings.length, 2);
+  assert.equal(result.rankings[0].candidate_id, 'c1');
+});
+
+test('aiService: analyzeResumeProfile generates ATS analysis', async () => {
+  const candidate = {
+    skills: ['React', 'TypeScript', 'PostgreSQL'],
+    summary: 'Senior full-stack engineer with 5 years experience building web apps.',
+  };
+
+  const result = await aiService.analyzeResumeProfile(candidate);
+  assert.equal(result.success, true);
+  assert.ok(result.analysis.ats_score > 0);
+});
+
+test('aiService: matchJobsBySkills loads open jobs from database when jobs are omitted', async () => {
+  const originalQuery = pool.query;
+  const queries = [];
+  pool.query = async (sql, params) => {
+    queries.push({ sql: String(sql), params });
     return {
-      ok: true,
-      status: 200,
-      json: async () => ({ reply: 'should-not-be-used', intent: 'fallback', confidence: 0, actions: [] }),
+      rows: [{ id: 1, title: 'React Engineer', description: 'Build React applications', skills: ['React'] }],
     };
-  }) as any;
+  };
 
   try {
-    await withEnv(
-      {
-        CHATBOT_PROVIDER: 'local',
-        FASTAPI_URL: 'http://127.0.0.1:8000',
-        FASTAPI_INTERNAL_SERVICE_TOKEN: 'unit-fastapi-token-abcdefghijklmnopqrstuvwxyz',
-      },
-      async () => {
-        const { createApp } = require('../app');
-        const app = createApp();
-        const response = await request(app)
-          .post('/api/public/chatbot/message')
-          .send({ message: 'How do I upload my resume?' });
+    const matches = await aiService.matchJobsBySkills({ skills: ['React'], experience: 'mid' });
 
-        assert.equal(response.status, 200);
-        assert.equal(response.body.success, true);
-        assert.equal(response.body.local, true);
-        assert.equal(response.body.intent, 'upload-resume');
-        assert.equal(response.headers['x-chatbot-mode'], 'local');
-      }
-    );
-
-    assert.equal(fetchCalls, 0);
+    assert.equal(queries.length, 1);
+    assert.equal(matches.length, 1);
+    assert.equal(matches[0].id, 1);
   } finally {
-    global.fetch = originalFetch;
+    pool.query = originalQuery;
   }
 });
 
-test('aiService sends internal auth via Bearer and internal header', async () => {
-  ensureBaseTestEnv();
-  const originalFetch = global.fetch;
-  const capturedHeaders: any[] = [];
+test('POST /api/public/chatbot/message returns chatbot response directly from backend', async () => {
+  const app = createApp();
+  const response = await request(app)
+    .post('/api/public/chatbot/message')
+    .send({ message: 'hello' });
 
-  global.fetch = (async (url: string | URL | Request, options: any = {}) => {
-    capturedHeaders.push(options.headers || {});
-    return {
-      ok: true,
-      status: 200,
-      json: async () => ({ reply: 'hello', intent: 'greeting', confidence: 1, actions: [] }),
-    };
-  }) as any;
-
-  try {
-    await withEnv(
-      {
-        FASTAPI_URL: getTestEnvValue('FASTAPI_URL', 'http://127.0.0.1:8000'),
-        FASTAPI_INTERNAL_SERVICE_TOKEN: 'unit-fastapi-token-abcdefghijklmnopqrstuvwxyz',
-      },
-      async () => {
-        const aiService = loadAiService();
-        const response = await aiService.getChatbotReply({ message: 'hello' });
-        assert.equal(response.reply, 'hello');
-      }
-    );
-
-    assert.equal(capturedHeaders.length, 1);
-    assert.equal(
-      capturedHeaders[0].Authorization,
-      'Bearer unit-fastapi-token-abcdefghijklmnopqrstuvwxyz'
-    );
-    assert.equal(
-      capturedHeaders[0]['X-Internal-Service-Token'],
-      'unit-fastapi-token-abcdefghijklmnopqrstuvwxyz'
-    );
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('aiService rejects missing internal token when FastAPI URL is configured', async () => {
-  ensureBaseTestEnv();
-  await withEnv(
-    {
-      FASTAPI_URL: 'http://127.0.0.1:8000',
-      FASTAPI_INTERNAL_SERVICE_TOKEN: null,
-      INTERNAL_SERVICE_TOKEN: null,
-    },
-    async () => {
-      const aiService = loadAiService();
-      await assert.rejects(
-        () => aiService.getChatbotReply({ message: 'hello' }),
-        (error) => error?.code === 'FASTAPI_AUTH_NOT_CONFIGURED'
-      );
-    }
-  );
-});
-
-test('aiService surfaces unauthorized responses from FastAPI', async () => {
-  ensureBaseTestEnv();
-  const originalFetch = global.fetch;
-  global.fetch = (async () => ({
-    ok: false,
-    status: 401,
-    json: async () => ({ detail: 'Unauthorized AI service request.' }),
-  })) as any;
-
-  try {
-    await withEnv(
-      {
-        FASTAPI_URL: 'http://127.0.0.1:8000',
-        FASTAPI_INTERNAL_SERVICE_TOKEN: 'unit-fastapi-token-abcdefghijklmnopqrstuvwxyz',
-      },
-      async () => {
-        const aiService = loadAiService();
-        await assert.rejects(
-          () => aiService.getChatbotReply({ message: 'hello' }),
-          (error) =>
-            error?.statusCode === 401 &&
-            /Unauthorized AI service request/i.test(String(error?.message || ''))
-        );
-      }
-    );
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('POST /api/public/chatbot/message returns chatbot response on valid internal token flow', async () => {
-  ensureBaseTestEnv();
-  const originalFetch = global.fetch;
-  global.fetch = (async () => ({
-    ok: true,
-    status: 200,
-    json: async () => ({ reply: 'Hi there!', intent: 'greeting', confidence: 0.95, actions: [] }),
-  })) as any;
-
-  try {
-    await withEnv(
-      {
-        FASTAPI_URL: 'http://127.0.0.1:8000',
-        FASTAPI_INTERNAL_SERVICE_TOKEN: 'unit-fastapi-token-abcdefghijklmnopqrstuvwxyz',
-      },
-      async () => {
-        const { createApp } = require('../app');
-        const app = createApp();
-        const response = await request(app)
-          .post('/api/public/chatbot/message')
-          .send({ message: 'hello' });
-
-        assert.equal(response.status, 200);
-        assert.equal(response.body.success, true);
-        assert.equal(response.body.reply, 'Hi there!');
-        assert.equal(response.body.intent, 'greeting');
-      }
-    );
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test('POST /api/public/chatbot/message returns degraded local intent fallback when upstream AI rejects the request', async () => {
-  ensureBaseTestEnv();
-  const originalFetch = global.fetch;
-  global.fetch = (async () => ({
-    ok: false,
-    status: 401,
-    json: async () => ({ detail: 'Unauthorized AI service request.' }),
-  })) as any;
-
-  try {
-    await withEnv(
-      {
-        FASTAPI_URL: 'http://127.0.0.1:8000',
-        FASTAPI_INTERNAL_SERVICE_TOKEN: 'unit-fastapi-token-abcdefghijklmnopqrstuvwxyz',
-      },
-      async () => {
-        const { createApp } = require('../app');
-        const app = createApp();
-        const response = await request(app)
-          .post('/api/public/chatbot/message')
-          .send({ message: 'hello' });
-
-        assert.equal(response.status, 200);
-        assert.equal(response.body.success, true);
-        assert.equal(response.body.degraded, true);
-        assert.equal(response.body.intent, 'greeting');
-        assert.equal(response.body.confidence, 0.85);
-        assert.match(String(response.body.reply || ''), /hi|hello|help/i);
-        assert.equal(response.headers['x-chatbot-degraded'], '1');
-      }
-    );
-  } finally {
-    global.fetch = originalFetch;
-  }
+  assert.equal(response.status, 200);
+  assert.equal(response.body.success, true);
+  assert.equal(response.body.intent, 'greeting');
+  assert.ok(response.body.reply.length > 0);
 });
