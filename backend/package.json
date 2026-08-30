@@ -8,8 +8,7 @@
     "test": "node --require tsx/cjs ../scripts/run-tests.ts",
     "typecheck": "tsc --noEmit",
     "typecheck:strict": "tsc -p tsconfig.strict.json --noEmit",
-    "migrate:posts:reassign-owner": "node --require tsx/cjs api/scripts/reassignPostOwnership.ts",
-    "fastapi:dev": "node --require tsx/cjs scripts/start-fastapi-dev.ts"
+    "migrate:posts:reassign-owner": "node --require tsx/cjs api/scripts/reassignPostOwnership.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1069.0",

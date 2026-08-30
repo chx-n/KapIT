@@ -25,12 +25,8 @@ let frontendPort = Number(process.env.VITE_PORT || 5173);
 const REUSE_EXISTING_BACKEND = process.env.REUSE_EXISTING_BACKEND === 'true';
 const BACKEND_WATCH_ENABLED = process.env.BACKEND_WATCH === 'true';
 const quietStartup = process.env.QUIET_STARTUP !== 'false';
-const FASTAPI_URL = String(
-  process.env.FASTAPI_URL || process.env.VITE_FASTAPI_URL || '',
-).trim();
 const tsxRequirePath = path.resolve(repoRoot, 'backend', 'node_modules', 'tsx', 'dist', 'cjs', 'index.cjs');
 const backendServerPath = path.resolve(repoRoot, 'backend', 'api', 'server.ts');
-const fastApiDevPath = path.resolve(repoRoot, 'backend', 'scripts', 'start-fastapi-dev.ts');
 const viteBinPath = path.resolve(repoRoot, 'frontend', 'node_modules', 'vite', 'bin', 'vite.js');
 
 // ---------------------------------------------------------------------------
@@ -130,20 +126,7 @@ const runBackendServer = () => {
   return runNodeScript('backend', backendArgs, path.resolve(repoRoot, 'backend'));
 };
 
-// ---------------------------------------------------------------------------
-// FastAPI helpers
-// ---------------------------------------------------------------------------
 
-const shouldStartLocalFastApi = () => {
-  if (!FASTAPI_URL) return false;
-  try {
-    const url = new URL(FASTAPI_URL);
-    const host = String(url.hostname || '').toLowerCase();
-    return host === '127.0.0.1' || host === 'localhost';
-  } catch {
-    return false;
-  }
-};
 
 // ---------------------------------------------------------------------------
 // Health-check
@@ -198,14 +181,12 @@ let frontendStarted = false;
 let serverReadyLogged = false;
 let serverProcess: ReturnType<typeof spawn> | null = null;
 let frontendProcess: ReturnType<typeof spawn> | null = null;
-let fastApiProcess: ReturnType<typeof spawn> | null = null;
 
 const shutdown = (code = 0) => {
   if (shuttingDown) return;
   shuttingDown = true;
 
   if (frontendProcess && !frontendProcess.killed) frontendProcess.kill();
-  if (fastApiProcess && !fastApiProcess.killed) fastApiProcess.kill();
   if (serverProcess && !serverProcess.killed) serverProcess.kill();
 
   process.exit(code);
@@ -218,16 +199,7 @@ const startFrontend = () => {
   frontendProcess.on('exit', (code) => shutdown(code ?? 0));
 };
 
-const startFastApi = () => {
-  if (shuttingDown || fastApiProcess || !shouldStartLocalFastApi()) return;
-  fastApiProcess = runNodeScript('backend', ['--require', tsxRequirePath, fastApiDevPath], path.resolve(repoRoot, 'backend'));
-  fastApiProcess.on('exit', (code) => {
-    fastApiProcess = null;
-    if (!shuttingDown && Number(code) !== 0) {
-      console.warn('FastAPI dev process exited. Chatbot replies may fail until FastAPI is restarted.');
-    }
-  });
-};
+
 
 const waitForServer = () => {
   if (shuttingDown || serverReadyLogged) return;
@@ -306,7 +278,6 @@ const bootstrap = async () => {
 
   // 5. Launch everything
   serverProcess = runBackendServer();
-  startFastApi();
   startFrontend();
   serverProcess.on('exit', (code) => shutdown(code ?? 0));
   waitForServer();
