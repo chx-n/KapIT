@@ -198,9 +198,11 @@ const createPoolMock = () => {
 const loadAppForPaymentE2E = () => {
   clearServerModuleCache();
   const paymentService = createPaymentServiceMock();
+  const sendCompanyJobPostPaymentEmail = test.mock.fn(async (_receipt) => ({ delivered: true }));
 
   mockServerModule('config/database.js', createPoolMock());
   mockServerModule('services/paymentService.js', paymentService);
+  mockServerModule('services/emailService.js', { sendCompanyJobPostPaymentEmail });
   mockServerModule('config/runtimeSchema.js', {
     warmRuntimeSchemas: async () => {},
     ensureBaseUserSchemaReady: async () => {},
@@ -209,7 +211,7 @@ const loadAppForPaymentE2E = () => {
   });
 
   const app = require('../app').createApp();
-  return { app, paymentService };
+  return { app, paymentService, sendCompanyJobPostPaymentEmail };
 };
 
 const buildCheckoutBody = (idempotencyKey) => ({
@@ -242,7 +244,7 @@ test('payment E2E: checkout rejects missing idempotency key', async () => {
 });
 
 test('payment E2E: checkout idempotency and PayPal capture retry safety', async () => {
-  const { app, paymentService } = loadAppForPaymentE2E();
+  const { app, paymentService, sendCompanyJobPostPaymentEmail } = loadAppForPaymentE2E();
   const bearer = `Bearer ${makeCompanyToken()}`;
 
   const first = await request(app)
@@ -297,6 +299,12 @@ test('payment E2E: checkout idempotency and PayPal capture retry safety', async 
 
   assert.equal(verifyFirst.status, 200);
   assert.equal(verifyFirst.body.success, true);
+  assert.equal(sendCompanyJobPostPaymentEmail.mock.callCount(), 1);
+  const receipt = sendCompanyJobPostPaymentEmail.mock.calls[0].arguments[0];
+  assert.equal(receipt.to, 'company@example.com');
+  assert.equal(receipt.jobTitle, 'QA Job');
+  assert.equal(receipt.amount, 499);
+  assert.equal(receipt.provider, 'paypal');
 
   const verifyRetry = await request(app)
     .post('/api/company/payments/paypal/capture')
@@ -305,6 +313,7 @@ test('payment E2E: checkout idempotency and PayPal capture retry safety', async 
 
   assert.equal(verifyRetry.status, 200);
   assert.equal(verifyRetry.body.success, true);
+  assert.equal(sendCompanyJobPostPaymentEmail.mock.callCount(), 1);
 
   assert.equal(paymentService.__state.finalizeProcessCount, 1);
   assert.equal(verifyRetry.body.payment.id, verifyFirst.body.payment.id);

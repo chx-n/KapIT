@@ -6,6 +6,7 @@
     "dev": "vite",
     "dev:vite": "vite",
     "build": "vite build",
+    "test": "node --test",
     "start": "vite preview",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",

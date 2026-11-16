@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { Module } = require('node:module');
 const path = require('node:path');
 const { ensureBaseTestEnv } = require('./testEnv.ts');
 
@@ -25,12 +26,10 @@ const mockServerModule = (relativePath, exportsValue) => {
     modulePath = require.resolve(basePath.replace(/\.js$/, '.ts'));
   }
 
-  require.cache[modulePath] = {
-    id: modulePath,
-    filename: modulePath,
-    loaded: true,
-    exports: exportsValue,
-  };
+  const mockedModule = new Module(modulePath);
+  mockedModule.loaded = true;
+  mockedModule.exports = exportsValue;
+  require.cache[modulePath] = mockedModule;
 };
 
 const createPoolMock = () => {

@@ -108,7 +108,9 @@ test('left profile sidebar follows the compact onboarding hub reference card', (
   assert.match(profileSidebarSource, /aria-label="Profile completion"/);
   assert.match(profileSidebarSource, /aria-valuenow=\{profileCompletion\}/);
   assert.match(profileSidebarSource, /style=\{\{\s*width:\s*`\$\{profileCompletion\}%`\s*\}\}/);
-  assert.match(profileSidebarSource, /PROGRESS_SEGMENTS/);
+  assert.match(profileSidebarSource, /role="progressbar"/);
+  assert.match(profileSidebarSource, /aria-valuemin=\{0\}/);
+  assert.match(profileSidebarSource, /aria-valuemax=\{100\}/);
   assert.match(profileSidebarSource, /ChevronsUpDown/);
   assert.ok(onboardingIndex >= 0 && profileButtonIndex > onboardingIndex, 'profile row button should be separate below onboarding content');
   assert.doesNotMatch(profileSidebarSource, /accountHandle/);

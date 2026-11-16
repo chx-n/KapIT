@@ -23,7 +23,6 @@ const USER_PROFILE_LINK_LABELS = [
 
 export default function UserLeftSidebar({
   user,
-  userType,
   collapsed,
   onToggleCollapsed,
   onOpenMyProfile,
@@ -134,7 +133,7 @@ export default function UserLeftSidebar({
 
       <div className="p-4 flex-shrink-0">
         {!collapsed ? (
-          <UserHomeProfileSidebar user={user} userType={userType} onOpenMyProfile={onOpenMyProfile} onLogout={onLogout} />
+          <UserHomeProfileSidebar user={user} onOpenMyProfile={onOpenMyProfile} onLogout={onLogout} />
         ) : (
           <button
             onClick={onOpenMyProfile}

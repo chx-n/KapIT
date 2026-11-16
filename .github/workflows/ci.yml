@@ -27,16 +27,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: 20
-          cache: pnpm
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 11
+          version: 11.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
         run: |
@@ -44,8 +44,17 @@ jobs:
           pnpm --dir backend install --frozen-lockfile
           pnpm --dir frontend install --frozen-lockfile
 
-      - name: Run lint (if present)
-        run: pnpm run lint --if-present
+      - name: Run lint
+        run: pnpm run lint
+
+      - name: Typecheck frontend
+        run: pnpm --dir frontend run typecheck
+
+      - name: Typecheck backend
+        run: pnpm --dir backend run typecheck
+
+      - name: Strict typecheck backend
+        run: pnpm --dir backend run typecheck:strict
 
       - name: Build
         env:
@@ -56,4 +65,4 @@ jobs:
         run: pnpm test
 
       - name: Run pnpm audit
-        run: pnpm audit --prod --audit-level=high
+        run: pnpm run audit

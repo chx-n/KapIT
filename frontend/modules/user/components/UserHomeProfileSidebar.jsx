@@ -1,14 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronsUpDown, CheckCircle2 } from 'lucide-react';
 
-const PROGRESS_SEGMENTS = 28;
-
-export default function UserHomeProfileSidebar({ user, userType, onOpenMyProfile, onLogout }) {
+export default function UserHomeProfileSidebar({ user, onOpenMyProfile, onLogout }) {
   const displayName = user?.fullName || user?.name || user?.username || 'User';
   const userInitial = displayName.charAt(0).toUpperCase();
   const profileImage = user?.profileImage || user?.avatarUrl || '';
   const profileCompletion = user?.profileCompletion ?? 34;
-  const completedSegmentCount = Math.round((profileCompletion / 100) * PROGRESS_SEGMENTS);
   const profileSubLabel = user?.headline || user?.desiredJob || 'Open profile';
   const isComplete = profileCompletion >= 100;
   const actionsRef = useRef(null);

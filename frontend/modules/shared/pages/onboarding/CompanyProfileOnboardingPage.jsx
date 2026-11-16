@@ -236,7 +236,7 @@ export default function CompanyProfileOnboardingPage({ user, onSubmit, onLogout 
     location: !submittedLocation,
     provinceCode: isPhilippines && !String(form.provinceCode).trim(),
     city: isPhilippines && !String(form.city).trim(),
-  }), [finalIndustry, form.city, form.companyName, form.companySize, form.contactEmail, form.country, form.industry, form.location, form.provinceCode, form.customIndustry, isPhilippines, submittedLocation]);
+  }), [finalIndustry, form.city, form.companyName, form.companySize, form.contactEmail, form.provinceCode, isPhilippines, submittedLocation]);
 
   const isComplete = useMemo(() => !Object.values(missing).some(Boolean), [missing]);
 

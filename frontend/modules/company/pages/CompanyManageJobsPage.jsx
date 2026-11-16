@@ -46,6 +46,12 @@ const formatJobDate = (value) => {
 };
 
 const statusTabs = ['open', 'draft', 'filled', 'closed'];
+const STATUS_ICONS = {
+  open: <BriefcaseBusiness />,
+  draft: <FileCheck />,
+  filled: <Lock />,
+  closed: <X />,
+};
 
 export default function CompanyManageJobsPage() {
   const { jobs, loading, error, refetch } = useCompanyJobs();
@@ -103,13 +109,6 @@ export default function CompanyManageJobsPage() {
     filled: Number(analytics?.filledJobs || 0),
     closed: Number(analytics?.closedJobs || 0),
   }), [analytics]);
-
-  const STATUS_ICONS = {
-    open: <BriefcaseBusiness />,
-    draft: <FileCheck />,
-    filled: <Lock />,
-    closed: <X />,
-  };
 
   const statusMetrics = useMemo(() => statusTabs.map((statusKey) => ({
     label: formatJobStatus(statusKey),
