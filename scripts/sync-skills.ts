@@ -56,6 +56,10 @@ const collectStandardSkills = (repoRoot: string): SkillRegistryEntry[] => {
       const skillFilePath = path.join(skillPath, 'SKILL.md');
 
       if (!fs.existsSync(skillFilePath)) {
+        if (fs.existsSync(path.join(skillPath, 'SKILL_REFERENCE.md'))) {
+          continue;
+        }
+
         throw new Error(
           `Skill folder "${categoryEntry.name}/${skillEntry.name}" is missing SKILL.md.`
         );
@@ -82,11 +86,23 @@ const collectCustomSkills = (repoRoot: string): SkillRegistryEntry[] => {
   }
 
   const parsed = readJsonFile(customRegistryPath, repoRoot);
-  if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as { skills?: unknown[] }).skills)) {
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error(`Expected ${normalizeSlashes(path.relative(repoRoot, customRegistryPath))} to contain a skills registry.`);
+  }
+
+  const registry = parsed as { skills?: unknown[]; entries?: unknown[] };
+  if (!Array.isArray(registry.skills)) {
+    if (Array.isArray(registry.entries) && registry.entries.every((entry) =>
+      entry && typeof entry === 'object' && typeof (entry as { path?: unknown }).path === 'string'
+    )) {
+      // Legacy category index; standard skills are already discovered from .agents/skills.
+      return [];
+    }
+
     throw new Error(`Expected ${normalizeSlashes(path.relative(repoRoot, customRegistryPath))} to contain a "skills" array.`);
   }
 
-  return (parsed as { skills: Array<{ command?: unknown; path?: unknown }> }).skills.map((entry, index) => {
+  return (registry.skills as Array<{ command?: unknown; path?: unknown }>).map((entry, index) => {
     if (!entry || typeof entry !== 'object') {
       throw new Error(`Custom skill entry ${index + 1} in .agents/skills.json must be an object.`);
     }

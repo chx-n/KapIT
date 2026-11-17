@@ -50,6 +50,53 @@ test('collectSkillRegistry combines standard and custom skills in command order'
   }
 });
 
+test('collectSkillRegistry accepts the category-entry registry used by this repository', () => {
+  const { repoRoot, writeSkill } = createFixture();
+
+  try {
+    writeSkill('.agents/skills/frontend-design/impeccable-polish/SKILL.md');
+    fs.writeFileSync(
+      path.join(repoRoot, '.agents', 'skills.json'),
+      JSON.stringify({ entries: [{ path: '.agents/skills/frontend-design' }] }),
+      'utf8'
+    );
+
+    const registry = collectSkillRegistry(repoRoot);
+
+    assert.deepEqual(
+      registry.map(({ command, runtimePath }) => ({ command, runtimePath })),
+      [{ command: 'impeccable-polish', runtimePath: '.agents/skills/frontend-design/impeccable-polish/SKILL.md' }]
+    );
+  } finally {
+    fs.rmSync(repoRoot, { recursive: true, force: true });
+  }
+});
+
+test('collectSkillRegistry skips support folders marked with SKILL_REFERENCE.md', () => {
+  const { repoRoot, writeSkill } = createFixture();
+
+  try {
+    writeSkill('.agents/skills/frontend-design/impeccable-shape/SKILL.md');
+    const guidePath = path.join(repoRoot, '.agents', 'skills', 'frontend-design', 'impeccable', 'SKILL_REFERENCE.md');
+    fs.mkdirSync(path.dirname(guidePath), { recursive: true });
+    fs.writeFileSync(guidePath, '# Shared skill guide\n', 'utf8');
+    fs.writeFileSync(
+      path.join(repoRoot, '.agents', 'skills.json'),
+      JSON.stringify({ entries: [{ path: '.agents/skills/frontend-design' }] }),
+      'utf8'
+    );
+
+    const registry = collectSkillRegistry(repoRoot);
+
+    assert.deepEqual(
+      registry.map(({ command }) => command),
+      ['impeccable-shape']
+    );
+  } finally {
+    fs.rmSync(repoRoot, { recursive: true, force: true });
+  }
+});
+
 test('collectSkillRegistry rejects duplicate commands', () => {
   const { repoRoot, writeSkill } = createFixture();
 

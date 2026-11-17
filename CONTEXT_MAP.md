@@ -94,29 +94,52 @@ Read this file first when starting any session. Use this lookup table to load th
 - `.agents/skills/README.md`
 - `.agents/skills/SKILLS_OVERVIEW.md`
 
-#### Design Skills
+#### Frontend & Design Skills
 
-- `.agents/skills/design/brandkit/SKILL.md`
-- `.agents/skills/design/design-taste-frontend/SKILL.md`
-- `.agents/skills/design/design-taste-frontend-v1/SKILL.md`
-- `.agents/skills/design/frontend-design-direction/SKILL.md`
-- `.agents/skills/design/full-output-enforcement/SKILL.md`
-- `.agents/skills/design/gpt-taste/SKILL.md`
-- `.agents/skills/design/high-end-visual-design/SKILL.md`
-- `.agents/skills/design/image-to-code/SKILL.md`
-- `.agents/skills/design/imagegen-frontend-mobile/SKILL.md`
-- `.agents/skills/design/imagegen-frontend-web/SKILL.md`
-- `.agents/skills/design/industrial-brutalist-ui/SKILL.md`
-- `.agents/skills/design/interface-kit/SKILL.md`
-- `.agents/skills/design/interface-kit/references/accessibility-checklist.md`
-- `.agents/skills/design/interface-kit/references/animation-playbook.md`
-- `.agents/skills/design/interface-kit/references/component-patterns.md`
-- `.agents/skills/design/interface-kit/references/review-checklist.md`
-- `.agents/skills/design/make-interfaces-feel-better/SKILL.md`
-- `.agents/skills/design/minimalist-ui/SKILL.md`
-- `.agents/skills/design/redesign-existing-projects/SKILL.md`
-- `.agents/skills/design/stitch-design-taste/SKILL.md`
-- `.agents/skills/design/stitch-design-taste/DESIGN.md`
+- `.agents/skills/frontend-design/brandkit/SKILL.md`
+- `.agents/skills/frontend-design/design-taste-frontend/SKILL.md`
+- `.agents/skills/frontend-design/design-taste-frontend-v1/SKILL.md`
+- `.agents/skills/frontend-design/frontend-design-direction/SKILL.md`
+- `.agents/skills/frontend-design/full-output-enforcement/SKILL.md`
+- `.agents/skills/frontend-design/gpt-taste/SKILL.md`
+- `.agents/skills/frontend-design/high-end-visual-design/SKILL.md`
+- `.agents/skills/frontend-design/image-to-code/SKILL.md`
+- `.agents/skills/frontend-design/imagegen-frontend-mobile/SKILL.md`
+- `.agents/skills/frontend-design/imagegen-frontend-web/SKILL.md`
+- `.agents/skills/frontend-design/industrial-brutalist-ui/SKILL.md`
+- `.agents/skills/frontend-design/interface-kit/SKILL.md`
+- `.agents/skills/frontend-design/interface-kit/references/accessibility-checklist.md`
+- `.agents/skills/frontend-design/interface-kit/references/animation-playbook.md`
+- `.agents/skills/frontend-design/interface-kit/references/component-patterns.md`
+- `.agents/skills/frontend-design/interface-kit/references/review-checklist.md`
+- `.agents/skills/frontend-design/make-interfaces-feel-better/SKILL.md`
+- `.agents/skills/frontend-design/minimalist-ui/SKILL.md`
+- `.agents/skills/frontend-design/redesign-existing-projects/SKILL.md`
+- `.agents/skills/frontend-design/stitch-design-taste/SKILL.md`
+- `.agents/skills/frontend-design/stitch-design-taste/DESIGN.md`
+- `.agents/skills/frontend-design/impeccable/SKILL_REFERENCE.md`
+- `.agents/skills/frontend-design/impeccable-adapt/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-animate/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-audit/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-bolder/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-clarify/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-colorize/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-critique/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-delight/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-distill/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-document/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-extract/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-harden/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-init/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-layout/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-live/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-onboard/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-optimize/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-overdrive/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-polish/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-quieter/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-shape/SKILL.md`
+- `.agents/skills/frontend-design/impeccable-typeset/SKILL.md`
 
 #### Development Skills
 
@@ -151,11 +174,11 @@ Read this file first when starting any session. Use this lookup table to load th
 - `.agents/skills/development/writing-skills/testing-skills-with-subagents.md`
 - `.agents/skills/development/writing-skills/examples/CLAUDE_MD_TESTING.md`
 
-#### Frontend Development Skills
+##### Frontend Engineering Skills
 
-- `.agents/skills/frontend-development/frontend-patterns/SKILL.md`
-- `.agents/skills/frontend-development/react-patterns/SKILL.md`
-- `.agents/skills/frontend-development/react-performance/SKILL.md`
+- `.agents/skills/frontend-design/frontend-patterns/SKILL.md`
+- `.agents/skills/frontend-design/react-patterns/SKILL.md`
+- `.agents/skills/frontend-design/react-performance/SKILL.md`
 
 #### Marketing Content Skills
 
@@ -181,14 +204,14 @@ Read this file first when starting any session. Use this lookup table to load th
 - `.agents/skills/marketing-platforms/twitter-x-posts/SKILL.md`
 - `.agents/skills/marketing-platforms/youtube-seo/SKILL.md`
 
-#### Marketing SEO Skills
+#### SEO Skills
 
-- `.agents/skills/marketing-seo/analytics-tracking/SKILL.md`
-- `.agents/skills/marketing-seo/entity-seo/SKILL.md`
-- `.agents/skills/marketing-seo/local-seo/SKILL.md`
-- `.agents/skills/marketing-seo/parasite-seo/SKILL.md`
-- `.agents/skills/marketing-seo/programmatic-seo/SKILL.md`
-- `.agents/skills/marketing-seo/seo/SKILL.md`
+- `.agents/skills/seo/analytics-tracking/SKILL.md`
+- `.agents/skills/seo/entity-seo/SKILL.md`
+- `.agents/skills/seo/local-seo/SKILL.md`
+- `.agents/skills/seo/parasite-seo/SKILL.md`
+- `.agents/skills/seo/programmatic-seo/SKILL.md`
+- `.agents/skills/seo/seo/SKILL.md`
 
 #### Planning / Context Skills
 
@@ -482,12 +505,11 @@ These were discovered in workspace but are not project-authored context docs. Tr
   - `.agents/skills/SKILLS_OVERVIEW.md`
   - relevant `.agents/skills/**/SKILL.md`
 - Target paths:
-  - `.agents/skills/design/`
+  - `.agents/skills/frontend-design/`
   - `.agents/skills/development/`
-  - `.agents/skills/frontend-development/`
   - `.agents/skills/marketing-content/`
   - `.agents/skills/marketing-platforms/`
-  - `.agents/skills/marketing-seo/`
+  - `.agents/skills/seo/`
   - `.agents/skills/planning-context/`
   - `.agents/skills/testing/`
   - `.agents/skills/video/`
