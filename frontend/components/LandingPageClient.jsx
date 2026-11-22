@@ -84,10 +84,6 @@ export default function LandingPageClient() {
               setIsLoginModalOpen(false);
               router.replace(resolveDashboardPath(user));
             }}
-            onRegisterClick={() => {
-              setIsLoginModalOpen(false);
-              router.push('/auth/register?type=developer');
-            }}
           />
         ) : null}
       </Suspense>

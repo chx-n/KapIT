@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, GitFork, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { X, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
+import GitHubMark from '@sharedComponents/icons/GitHubMark';
 import {
   createOAuthState,
   getUserAccountType,
@@ -18,7 +20,7 @@ const getAudienceErrorMessage = (accountType) => (
       : ''
 );
 
-export default function LoginModal({ open, accountType, initialError, onClose, onLoginSuccess, onRegisterClick }) {
+export default function LoginModal({ open, accountType, initialError, onClose, onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -242,7 +244,7 @@ export default function LoginModal({ open, accountType, initialError, onClose, o
               onClick={handleGithubClick}
               className="flex items-center justify-center gap-3 w-full px-4 py-3 bg-transparent hover:bg-[#eef6ee]/50 dark:hover:bg-[#1f2b23]/50 rounded-xl border border-[#a3b18a]/40 dark:border-[#444d57]/40 transition-all duration-200 text-[#344e41] dark:text-[#e7f4ea] font-medium text-[14px] shadow-sm hover:shadow disabled:opacity-50"
             >
-              <GitFork className="w-5 h-5" />
+              <GitHubMark className="w-5 h-5" />
               Continue with GitHub
             </button>
           </div>
@@ -254,9 +256,11 @@ export default function LoginModal({ open, accountType, initialError, onClose, o
             </span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
+              <label htmlFor="login-modal-email" className="block mb-1.5 text-[13px] font-medium text-[#344e41]/80 dark:text-[#adb5be]">Email</label>
               <input
+                id="login-modal-email"
                 type="email"
                 placeholder="Email address"
                 value={email}
@@ -266,22 +270,35 @@ export default function LoginModal({ open, accountType, initialError, onClose, o
               />
             </div>
             
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3.5 pr-10 bg-[#f8faf8] dark:bg-[#1f2b23]/50 border border-[#a3b18a]/40 dark:border-[#5f8a68]/40 rounded-xl text-[#344e41] dark:text-[#e7f4ea] placeholder:text-[#3a5a40]/50 dark:placeholder:text-[#adb5be]/50 focus:outline-none focus:ring-2 focus:ring-[#588157]/20 focus:border-[#588157] transition-all text-[14px] shadow-sm"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#3a5a40]/60 hover:text-[#344e41] dark:text-[#adb5be]/60 dark:hover:text-[#e7f4ea]"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-1.5">
+                <label htmlFor="login-modal-password" className="text-[13px] font-medium text-[#344e41]/80 dark:text-[#adb5be]">Password</label>
+                <Link
+                  to="/forgot-password"
+                  className="text-[13px] text-[#3a5a40] dark:text-[#6f9b74] hover:text-[#344e41] dark:hover:text-white font-medium hover:underline transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#588157]"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <input
+                  id="login-modal-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3.5 pr-10 bg-[#f8faf8] dark:bg-[#1f2b23]/50 border border-[#a3b18a]/40 dark:border-[#5f8a68]/40 rounded-xl text-[#344e41] dark:text-[#e7f4ea] placeholder:text-[#3a5a40]/50 dark:placeholder:text-[#adb5be]/50 focus:outline-none focus:ring-2 focus:ring-[#588157]/20 focus:border-[#588157] transition-all text-[14px] shadow-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#3a5a40]/60 hover:text-[#344e41] dark:text-[#adb5be]/60 dark:hover:text-[#e7f4ea] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#588157]"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -292,20 +309,6 @@ export default function LoginModal({ open, accountType, initialError, onClose, o
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Continue'}
             </button>
           </form>
-
-          <div className="mt-6 text-center text-[14px] text-[#3a5a40]/80 dark:text-[#adb5be]">
-            Don't have an account?{' '}
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                onRegisterClick?.();
-              }}
-              className="text-[#588157] dark:text-[#6f9b74] hover:text-[#344e41] dark:hover:text-white font-medium hover:underline transition-colors"
-            >
-              Sign up
-            </button>
-          </div>
         </div>
       </div>
     </div>

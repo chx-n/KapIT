@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Moon, Sun, AlertCircle, Eye, EyeOff, GitFork, X, ArrowLeft } from 'lucide-react';
+import { Moon, Sun, AlertCircle, Eye, EyeOff, X, ArrowLeft } from 'lucide-react';
 import { useTheme } from '@sharedContext/ThemeContext';
 import KapITLogo from '@sharedComponents/branding/KapITLogo';
+import GitHubMark from '@sharedComponents/icons/GitHubMark';
 import { createOAuthState, loginUser, loginWithGoogle, loginWithGithub } from '@sharedServices/authService';
 import TermsAndConditionsModal from '@sharedComponents/modals/TermsAndConditionsModal';
 
@@ -550,7 +551,7 @@ export default function AuthPage({
                     onClick={handleGithubClick}
                     className="flex items-center justify-center gap-3 w-full px-4 py-3 bg-transparent hover:bg-[#f0f5ef]/60 dark:hover:bg-[#1f2b23]/40 rounded-xl border border-[#a3b18a]/30 dark:border-[#444d57]/35 transition-all duration-200 text-[#344e41] dark:text-[#e7f4ea] font-medium text-[14px] shadow-sm hover:shadow disabled:opacity-50"
                   >
-                    <GitFork className="w-[18px] h-[18px]" />
+                    <GitHubMark className="w-[18px] h-[18px]" />
                     Continue with GitHub
                   </button>
                 </div>
@@ -681,7 +682,7 @@ export default function AuthPage({
                     onClick={handleGithubClick}
                     className="flex items-center justify-center gap-3 w-full px-4 py-3 bg-transparent hover:bg-[#f0f5ef]/60 dark:hover:bg-[#1f2b23]/40 rounded-xl border border-[#a3b18a]/30 dark:border-[#444d57]/35 transition-all duration-200 text-[#344e41] dark:text-[#e7f4ea] font-medium text-[14px] shadow-sm hover:shadow disabled:opacity-50"
                   >
-                    <GitFork className="w-[18px] h-[18px]" />
+                    <GitHubMark className="w-[18px] h-[18px]" />
                     Continue with GitHub
                   </button>
                 </div>

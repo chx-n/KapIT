@@ -78,10 +78,6 @@ export default function EmployerLandingPageClient() {
               setIsLoginModalOpen(false);
               router.replace(resolveDashboardPath(user));
             }}
-            onRegisterClick={() => {
-              setIsLoginModalOpen(false);
-              router.push('/auth/register?type=company');
-            }}
           />
         ) : null}
       </Suspense>
