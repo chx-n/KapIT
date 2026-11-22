@@ -18,7 +18,7 @@ const PREMIUM_PLAN = {
   id: 'premium',
   name: 'Premium',
   amount: 449,
-  unit: '/\nmonth',
+  unit: '/ month',
   subtitle: 'For faster, smarter job matching and better visibility. Everything in Free, plus:',
   cta: 'Upgrade to Premium',
   highlighted: true,
@@ -38,7 +38,7 @@ const plans = [
     id: 'free',
     name: 'Free',
     amount: '0',
-    unit: '/\nmonth',
+    unit: '/ month',
     subtitle: 'For getting started with your job search.',
     cta: 'Your current plan',
     features: [
@@ -70,47 +70,52 @@ function PlanCard({ plan, onUpgrade, buttonLabel, disabled = false }) {
 
   return (
     <div
-      className={`flex min-h-0 flex-col rounded-[32px] border p-5 sm:min-h-[520px] sm:p-7 transition-all duration-300 hover:scale-[1.01] ${
+      className={`flex min-h-0 flex-col rounded-xl border p-5 sm:p-6 xl:rounded-lg ${
         highlighted
-          ? 'border-white/20 bg-gradient-to-b from-[#1a2e1d]/90 to-[#0a140c]/90 text-white shadow-[0_20px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl dark:from-[#112415]/90 dark:to-[#050a06]/90'
-          : 'border-white/40 bg-white/70 shadow-[0_20px_40px_rgba(0,0,0,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-[#22272b]/70'
+          ? 'border-[#8cac91] bg-[#eef6ee] dark:border-[#5a8465] dark:bg-[#243b2b] xl:border-[var(--user-primary)] xl:bg-[var(--user-surface-selected)]'
+          : 'border-[#dce3df] bg-white dark:border-[#3f3f46] dark:bg-[#22272b] xl:border-[var(--user-border)] xl:bg-[var(--user-surface)]'
       }`}
     >
-      <div>
-        <div className="flex items-center gap-2">
-          {highlighted ? <Crown className="h-5 w-5 text-[#588157] dark:text-[#f0c766]" /> : null}
-          <h3 className="text-[1.85rem] sm:text-[2rem] font-medium tracking-tight text-[#102a1b] dark:text-white">{plan.name}</h3>
-        </div>
-        <div className={`mt-5 flex items-start gap-2 sm:mt-6 sm:gap-3 ${highlighted ? 'text-white' : 'text-[#102a1b] dark:text-white'}`}>
-          <span className={`pt-1.5 text-lg sm:pt-2 sm:text-xl ${highlighted ? 'text-white/80' : 'text-[#344e41]/70 dark:text-[#d0d7dd]'}`}>PHP</span>
-          <span className="text-[3.3rem] font-semibold leading-none sm:text-5xl">{plan.amount}</span>
-          <span className={`whitespace-pre-line pt-1.5 text-sm leading-4 sm:pt-2 ${highlighted ? 'text-white/80' : 'text-[#344e41]/85 dark:text-[#d0d7dd]'}`}>{plan.unit}</span>
-        </div>
-        <p className={`mt-5 text-[0.98rem] sm:mt-6 sm:text-base ${highlighted ? 'text-white/90' : 'text-[#344e41] dark:text-[#d0d7dd]'}`}>{plan.subtitle}</p>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="flex items-center gap-2 text-xl font-semibold text-[var(--user-text-strong)]">
+          {highlighted ? <Crown className="h-5 w-5 text-[#9a700c] dark:text-[#e8c24d]" aria-hidden="true" /> : null}
+          {plan.name}
+        </h3>
+      </div>
+      <div className="mt-5 flex items-baseline gap-1.5 text-[var(--user-text-strong)]">
+        <span className="text-sm font-medium text-[var(--user-text-muted)]">PHP</span>
+        <span className="text-4xl font-semibold leading-none tabular-nums">{plan.amount}</span>
+        <span className="text-sm text-[var(--user-text-muted)]">{plan.unit}</span>
+      </div>
+      <p className="mt-4 min-h-[44px] text-sm leading-5 text-[var(--user-text)]">{plan.subtitle}</p>
+
+      <div className="mt-5">
+        {highlighted ? (
+          <button
+            type="button"
+            onClick={disabled ? undefined : onUpgrade}
+            disabled={disabled}
+            className="flex min-h-10 w-full items-center justify-center rounded-md bg-[var(--user-premium)] px-4 py-2 text-sm font-semibold text-[var(--user-premium-ink)] transition-[filter,transform] duration-150 hover:brightness-105 active:scale-[0.98] disabled:cursor-default disabled:opacity-60 disabled:hover:brightness-100 disabled:active:scale-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--user-primary)]"
+          >
+            {buttonLabel || plan.cta}
+          </button>
+        ) : (
+          <div className="flex min-h-10 items-center justify-center rounded-md border border-[var(--user-border)] bg-[var(--user-surface-subtle)] px-4 py-2 text-sm font-medium text-[var(--user-text-muted)]">
+            {buttonLabel || plan.cta}
+          </div>
+        )}
       </div>
 
-      <button
-        type="button"
-        onClick={highlighted && !disabled ? onUpgrade : undefined}
-        disabled={disabled}
-        className={`mt-6 w-full rounded-full border px-5 py-3 text-sm font-medium transition-colors sm:mt-8 sm:px-6 ${
-          highlighted
-            ? disabled
-              ? 'border-[#8ea786] bg-[#8ea786] text-white cursor-default dark:border-[#4d7296] dark:bg-[#4d7296] dark:text-white'
-              : 'border-[#3a5a40] bg-[#3a5a40] text-white hover:bg-[#344e41] dark:border-[#6f9b74] dark:bg-[#6f9b74] dark:text-[#121416] dark:hover:bg-[#82ad86]'
-            : 'border-[#a3b18a] bg-transparent text-[#344e41] hover:bg-[#eef6ee] hover:text-[#102a1b] dark:border-[#444d57] dark:text-[#eceff2] dark:hover:bg-[#353c44] dark:hover:text-white'
-        }`}
-      >
-        {buttonLabel || plan.cta}
-      </button>
-
-      <div className="mt-6 space-y-3.5 sm:mt-8 sm:space-y-4">
-        {plan.features.map(({ icon: Icon, text }) => (
-          <div key={text} className={`flex items-start gap-3 ${highlighted ? 'text-white' : 'text-[#344e41] dark:text-[#eceff2]'}`}>
-            <Icon className={`mt-0.5 h-4 w-4 flex-shrink-0 ${highlighted ? 'text-[#a1b898]' : 'text-[#588157] dark:text-[#f0c766]'}`} />
-            <span className="text-[0.95rem] leading-6 sm:text-[0.97rem]">{text}</span>
-          </div>
-        ))}
+      <div className="mt-5 border-t border-[var(--user-border)] pt-5">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--user-text-muted)]">What you get</p>
+        <ul className="space-y-3">
+          {plan.features.map(({ icon: Icon, text }) => (
+            <li key={text} className="flex items-start gap-2.5 text-sm leading-5 text-[var(--user-text)]">
+              <Icon className="mt-0.5 h-4 w-4 flex-none text-[var(--user-primary)]" aria-hidden="true" />
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -536,46 +541,94 @@ function MerchantCheckout({ user: _user, onBack, onClose, onConfirmUpgrade, stan
 
 
 export default function UserPremiumPopup({ isOpen, onClose, user, onOpenMerchantWindow }) {
+  const dialogRef = React.useRef(null);
+  const closeButtonRef = React.useRef(null);
+  const onCloseRef = React.useRef(onClose);
+
+  React.useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  React.useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const buttons = dialogRef.current?.querySelectorAll('button:not([disabled])');
+      if (!buttons?.length) return;
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (!dialogRef.current?.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      } else if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus?.();
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const isPremium = !!user?.isPremium;
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/55 backdrop-blur-sm">
-      <div className="flex min-h-full items-end justify-center p-2 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center sm:p-4">
-        <div className="flex max-h-[min(92vh,960px)] w-full max-w-5xl flex-col overflow-hidden rounded-[32px] border border-white/40 bg-white/80 shadow-[0_30px_80px_rgba(0,0,0,0.18)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#1a1d20]/80 dark:shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
-          <div className="flex items-start justify-between gap-4 border-b border-white/40 px-4 py-4 dark:border-white/10 sm:px-5">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/45">
+      <div className="flex min-h-full items-end justify-center p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center sm:p-5">
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="user-premium-title" className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-[880px] flex-col overflow-hidden rounded-xl border border-[var(--user-border)] bg-[#f8fbf6] shadow-[0_20px_60px_rgba(0,0,0,0.18)] dark:bg-[#121416] sm:max-h-[min(90dvh,820px)] xl:rounded-lg xl:bg-[var(--user-surface)] xl:shadow-[var(--user-elevated-shadow)]">
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--user-border)] px-5 py-4 sm:px-6 sm:py-5">
             <div>
-              <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-semibold text-[#102a1b] dark:text-white">
-                <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-[#588157] dark:text-[#f0c766]" />
+              <h2 id="user-premium-title" className="flex items-center gap-2 text-xl font-semibold text-[var(--user-text-strong)] sm:text-2xl">
+                <Crown className="h-5 w-5 text-[#9a700c] dark:text-[#e8c24d]" aria-hidden="true" />
                 Premium Plans
               </h2>
-              <p className="mt-1 text-sm text-[#344e41] dark:text-[#d0d7dd]">Choose the plan that fits your job application needs.</p>
+              <p className="mt-1 text-sm text-[var(--user-text-muted)]">Choose the plan that fits your job application needs.</p>
             </div>
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-[#344e41] transition-colors hover:bg-[#f5f5f2] hover:text-[#102a1b] dark:text-[#d0d7dd] dark:hover:bg-[#353c44] dark:hover:text-white"
+              className="-mr-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-[var(--user-text-muted)] transition-[background-color,color,transform] duration-150 hover:bg-[var(--user-surface-selected)] hover:text-[var(--user-text-strong)] active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--user-primary)] sm:h-9 sm:w-9"
               aria-label="Close premium popup"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
 
-          <div className="overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
+          <div className="overflow-y-auto p-4 sm:p-5">
             {isPremium ? (
-              <div className="mb-4 rounded-[20px] border border-[#bfd0af] bg-[linear-gradient(180deg,#f4f8f1,#ebf4e7)] px-4 py-3 text-sm text-[#2f4e39] dark:border-[#2f5a78] dark:bg-[linear-gradient(180deg,#2a2f35,#202428)] dark:text-[#eceff2]">
+              <div className="mb-4 rounded-md border border-[var(--user-border)] bg-[var(--user-surface-selected)] px-4 py-3 text-sm text-[var(--user-text)]">
                 You're already on the Premium plan.
               </div>
             ) : null}
-            <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {plans.map((plan) => (
                 <PlanCard
                   key={plan.id}
                   plan={plan}
                   onUpgrade={onOpenMerchantWindow}
                   disabled={Boolean(isPremium && plan.highlighted)}
-                  buttonLabel={isPremium && plan.highlighted ? "You're on this plan" : plan.cta}
+                  buttonLabel={isPremium ? (plan.highlighted ? "You're on this plan" : 'Free plan') : plan.cta}
                 />
               ))}
             </div>
