@@ -413,14 +413,6 @@ export const verifyPasswordResetOtp = async ({ email, code }) => {
   });
 };
 
-export const requestLocalPasswordResetBypassToken = async ({ email }) => {
-  return authRequest('/verify-otp/localhost-bypass', {
-    method: 'POST',
-    body: JSON.stringify({ email }),
-    retryOnUnauthorized: false,
-  });
-};
-
 export const resetPasswordWithOtp = async ({ resetToken, newPassword }) => {
   return authRequest('/reset-password-otp', {
     method: 'POST',

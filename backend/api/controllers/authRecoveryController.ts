@@ -7,7 +7,6 @@ const {
   issueRegistrationOtp,
   verifyRegistrationOtp,
   issueLocalRegistrationBypassToken,
-  issueLocalPasswordResetBypassToken,
 } = require('../services/authService');
 const { assertLocalAuthBypassAllowed } = require('../config/localBypass');
 
@@ -146,29 +145,6 @@ const localRegistrationBypass = async (req: Request, res: Response) => {
   }
 };
 
-const localPasswordResetBypass = async (req: Request, res: Response) => {
-  try {
-    assertLocalBypassAllowed(req);
-    const email = String(req.body?.email || '').trim();
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Email is required.' });
-    }
-
-    const result = await issueLocalPasswordResetBypassToken({ email });
-    if (result.success) {
-      return res.status(200).json({ success: true, resetToken: result.resetToken });
-    }
-
-    return res.status(result.statusCode).json({ success: false, message: result.message });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Localhost password reset bypass is unavailable.';
-    return res.status(400).json({
-      success: false,
-      message,
-    });
-  }
-};
-
 module.exports = {
   forgotPassword,
   resetPassword,
@@ -178,5 +154,4 @@ module.exports = {
   sendRegistrationOtpCode,
   verifyRegistrationOtpCode,
   localRegistrationBypass,
-  localPasswordResetBypass,
 };

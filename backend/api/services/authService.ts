@@ -552,42 +552,6 @@ const verifyRegistrationOtp = async ({ email, code }) => {
   }
 };
 
-const issueLocalPasswordResetBypassToken = async ({ email }) => {
-  const normalizedEmail = normalizeEmail(email);
-  if (!normalizedEmail) {
-    return { success: false, statusCode: 400, message: 'Invalid email address provided.' };
-  }
-
-  let client;
-  try {
-    client = await pool.connect();
-    const userResult = await client.query(
-      `SELECT id
-       FROM users
-       WHERE LOWER(email) = $1
-       LIMIT 1`,
-      [normalizedEmail]
-    );
-
-    if (!userResult.rows.length) {
-      return { success: false, statusCode: 404, message: 'No account found for this email.' };
-    }
-
-    const resetToken = jwt.sign(
-      { email: normalizedEmail, purpose: 'otp-password-reset' },
-      getOtpJwtSecretOrThrow(),
-      { expiresIn: '15m' }
-    );
-
-    return { success: true, statusCode: 200, resetToken };
-  } catch (error) {
-    logger.error({ err: error }, 'Failed to issue localhost password reset bypass token.');
-    return { success: false, statusCode: 500, message: 'Unable to create bypass token right now.' };
-  } finally {
-    if (client) client.release();
-  }
-};
-
 const issueLocalRegistrationBypassToken = async ({ email }) => {
   const normalizedEmail = normalizeEmail(email);
   if (!normalizedEmail) {
@@ -631,5 +595,4 @@ module.exports = {
   issueRegistrationOtp,
   verifyRegistrationOtp,
   issueLocalRegistrationBypassToken,
-  issueLocalPasswordResetBypassToken,
 };

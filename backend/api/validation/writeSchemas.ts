@@ -145,7 +145,6 @@ const writeSchemas = {
   authResetPassword: schema(z.object({ token: z.string().min(32).max(512), new_password: password }).strict()),
   authSendOtp: schema(z.object({ email }).strict()),
   authLocalRegistrationBypass: schema(z.object({ email }).strict()),
-  authLocalPasswordResetBypass: schema(z.object({ email }).strict()),
   authVerifyOtp: schema(z.object({ email, code: z.string().length(6).regex(/^\d{6}$/) }).strict()),
   authResetPasswordOtp: schema(z.object({ resetToken: z.string().min(10).max(512), new_password: password }).strict()),
   authOAuthStateCreate: schema(

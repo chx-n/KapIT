@@ -27,7 +27,6 @@ const {
   sendRegistrationOtpCode,
   verifyRegistrationOtpCode,
   localRegistrationBypass,
-  localPasswordResetBypass,
 } = require('../controllers/authRecoveryController');
 const {
   createOAuthStateSession,
@@ -80,12 +79,6 @@ router.post('/reset-password-otp', resetPasswordRateLimiter, validateRequest(wri
 router.post('/send-registration-otp', authAttemptRateLimiter, validateRequest(writeSchemas.authSendOtp), sendRegistrationOtpCode);
 router.post('/verify-registration-otp', authAttemptRateLimiter, validateRequest(writeSchemas.authVerifyOtp), verifyRegistrationOtpCode);
 if (isLocalAuthBypassEnabled()) {
-  router.post(
-    '/verify-otp/localhost-bypass',
-    authAttemptRateLimiter,
-    validateRequest(writeSchemas.authLocalPasswordResetBypass),
-    localPasswordResetBypass
-  );
   router.post(
     '/registration/localhost-bypass',
     authAttemptRateLimiter,

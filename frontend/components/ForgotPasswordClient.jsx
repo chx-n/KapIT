@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from '@shared/hooks/useAppRouter';
 import {
   AlertCircle,
@@ -19,7 +19,6 @@ import KapITLogo from '@sharedComponents/branding/KapITLogo';
 import {
   sendPasswordResetOtp,
   verifyPasswordResetOtp,
-  requestLocalPasswordResetBypassToken,
   resetPasswordWithOtp,
 } from '@sharedServices/authService';
 
@@ -185,17 +184,9 @@ function StepVerify({ email, onNext, onBack: _onBack }) {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
-  const [isLocalhost, setIsLocalhost] = useState(false);
-  const localAuthBypassEnabled = import.meta.env.VITE_ENABLE_LOCAL_AUTH_BYPASS === 'true';
   const inputRefs = useRef([]);
 
   const code = digits.join('');
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const hostname = String(window.location.hostname || '').trim().toLowerCase();
-    setIsLocalhost(hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1');
-  }, []);
 
   const handleChange = (idx, val) => {
     // Allow paste of full 6-digit code on any box
@@ -278,28 +269,6 @@ function StepVerify({ email, onNext, onBack: _onBack }) {
     }
   };
 
-  const handleLocalBypass = async () => {
-    if (!isLocalhost) return;
-
-    setError('');
-    setInfo('');
-    setLoading(true);
-
-    try {
-      const data = await requestLocalPasswordResetBypassToken({ email });
-      if (!data?.success || !data?.resetToken) {
-        setError(data?.message || 'Localhost bypass is unavailable.');
-        return;
-      }
-
-      onNext(data.resetToken);
-    } catch (err) {
-      setError(String(err?.message || 'Unable to use localhost bypass.'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="text-center mb-8">
@@ -352,17 +321,6 @@ function StepVerify({ email, onNext, onBack: _onBack }) {
       <PrimaryButton loading={loading}>
         {loading ? 'Verifying…' : 'Verify Code'}
       </PrimaryButton>
-      {isLocalhost && localAuthBypassEnabled ? (
-        <button
-          type="button"
-          onClick={handleLocalBypass}
-          disabled={loading || resending}
-          className="w-full flex items-center justify-center border border-[#a3b18a] dark:border-[#444d57] bg-[#f8faf7] hover:bg-[#eef3ea] dark:bg-[#1a1d20] dark:hover:bg-[#31363d] text-[#3a5a40] dark:text-[#d0d7dd] font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Localhost Bypass
-        </button>
-      ) : null}
-
       <div className="flex items-center justify-end mt-2 text-sm">
         <button
           type="button"

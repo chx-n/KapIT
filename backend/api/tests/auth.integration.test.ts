@@ -202,3 +202,20 @@ test('auth integration: register + login success, generic login failure, and mis
   assert.equal(missingFields.body.error, 'validation error');
   assert.ok(Array.isArray(missingFields.body.details));
 });
+
+test('localhost auth bypass supports registration but has no password reset route', async () => {
+  process.env.NODE_ENV = 'development';
+  process.env.ENABLE_LOCAL_AUTH_BYPASS = 'true';
+
+  const app = loadAppForAuthIntegration();
+  const resetResponse = await request(app)
+    .post('/api/auth/verify-otp/localhost-bypass')
+    .send({ email: 'not-an-email' });
+  assert.equal(resetResponse.status, 404);
+
+  const registrationResponse = await request(app)
+    .post('/api/auth/registration/localhost-bypass')
+    .send({ email: 'new-account@example.com' });
+  assert.equal(registrationResponse.status, 200);
+  assert.equal(typeof registrationResponse.body.verificationToken, 'string');
+});
